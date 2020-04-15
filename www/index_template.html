@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Dynamic Generated Demo</title>
+        <title>{{title}}</title>
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" href="main.css">
+        <link rel="stylesheet" href="nouislider.min.css">
     </head>
     <body>
         <div>
-            <h1>User-Defined Content</h1>
+            <h1>{{title}}</h1>
+            <hr>
             {{user_content}}
         </div>
     </body>
+    <script src="nouislider.js"></script>
     <script src="main.js"></script> 
 </html>

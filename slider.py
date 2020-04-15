@@ -14,30 +14,51 @@ class Slider(webUserInput):
     def getHTML(self):
         return """
                 <div class="slidecontainer">
-                    <h3>{}</h3>
-                    <input type="range" min="{}" max="{}" value="{}" class="slider" id="{}">
-                    <div id="{}_readout"> ?? </div>
+                    <h3>{1}</h3>
+                    <div id="{0}_slider"></div>
+                    <div id="{0}_readout"> ?? </div>
                 </div>
                 <br>
-               """.format(self.name, self.minVal, self.maxVal, self.defaultVal, self.id, self.id)
+               """.format(self.id, self.name)
 
     def getJS(self):
         return """
-                var slider_{} = document.getElementById("{}");
-                var output_{} = document.getElementById("{}_readout");
-                output_{}.innerHTML = slider_{}.value; // Display the default slider value
+                sliderObjects[\"{0}\"] = document.getElementById('{0}_slider');
 
-                // Update the current slider value (each time you drag the slider handle)
-                slider_{}.oninput = function() {{
-                    output_{}.innerHTML = this.value;
-                }}
-               """.format(self.id, self.id, self.id, self.id, self.id, self.id, self.id, self.id)
+                noUiSlider.create(sliderObjects[\"{0}\"], {{
+                    start: [{3}],
+                    range: {{
+                        'min': [{1}],
+                        'max': [{2}]
+                    }}
+                }});
+
+                sliderObjects[\"{0}\"].noUiSlider.on('slide', function(values, handle, unencoded){{
+                    if(websocket.readyState == WebSocket.OPEN){{
+                        websocket.send(JSON.stringify({{action: 'set', id: \"{0}\", value: unencoded}}));
+                    }}
+                
+                }});
+
+
+
+
+
+
+
+
+
+               """.format(self.id, self.minVal, self.maxVal, self.defaultVal)
 
     def getValue(self):
         return self.value
 
     def getName(self):
         return self.name
+
+    def getID(self):
+        return self.id
+       
 
     def setValue(self, value):
         self.value = value
