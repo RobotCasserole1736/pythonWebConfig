@@ -1,4 +1,5 @@
 from abstractWebObjects import webUserInput
+import textwrap
 
 class Slider(webUserInput):
     
@@ -12,24 +13,32 @@ class Slider(webUserInput):
         self.id = self.name.replace(" ", "_")
     
     def getHTML(self):
-        return """
+        text = """
+                <!-- Slider {1} -->
                 <div class="slidecontainer">
                     <h3>{1}</h3>
                     <div id="{0}_slider"></div>
-                    <div id="{0}_readout"> ?? </div>
                 </div>
                 <br>
                """.format(self.id, self.name)
+        return textwrap.dedent(text)
 
     def getJS(self):
-        return """
+        text = """
+                // Handle slider {0} instantiation, config, and websocket events
                 sliderObjects[\"{0}\"] = document.getElementById('{0}_slider');
 
                 noUiSlider.create(sliderObjects[\"{0}\"], {{
                     start: [{3}],
+                    tooltips: [true],
                     range: {{
                         'min': [{1}],
                         'max': [{2}]
+                    }},
+                    pips: {{
+                        mode: 'count',
+                        values: 6,
+                        density: 4
                     }}
                 }});
 
@@ -40,15 +49,8 @@ class Slider(webUserInput):
                 
                 }});
 
-
-
-
-
-
-
-
-
                """.format(self.id, self.minVal, self.maxVal, self.defaultVal)
+        return textwrap.dedent(text)
 
     def getValue(self):
         return self.value
@@ -61,9 +63,10 @@ class Slider(webUserInput):
        
 
     def setValue(self, value):
-        self.value = value
-        if(self.value > self.maxVal):
-            self.value = self.maxVal
-        elif(self.value < self.minVal):
-            self.value = self.minVal
+        if(self.value != value):
+            self.value = value
+            if(self.value > self.maxVal):
+                self.value = self.maxVal
+            elif(self.value < self.minVal):
+                self.value = self.minVal
 

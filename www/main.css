@@ -259,3 +259,24 @@
        width: 0;
        height: 100%;
    }
+
+   .mainImage {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
+    border: #FC0000
+   }
+
+   /* two column stuff */
+   .column {
+    float: left;
+    width: 50%;
+  }
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
