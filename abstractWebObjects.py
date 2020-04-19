@@ -14,6 +14,7 @@ class WebsiteObject(ABC):
         pass
 
 class webUserInput(WebsiteObject, ABC):
+
     @abstractmethod
     def getValue(self):
         return 0

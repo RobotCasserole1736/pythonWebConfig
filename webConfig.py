@@ -9,6 +9,7 @@ import logging
 import os
 
 from slider import Slider
+from doubleSlider import DoubleSlider
 
 HTTP_PORT = 2006
 WS_PORT = 6789
@@ -81,7 +82,7 @@ class WebConfig:
     def __init__(self, title_in):
         global title
 
-        print("Starting up {}...".format(title_in))
+        logging.info("Starting up {}...".format(title_in))
         title = title_in
 
         self.connectedUsers = set()
@@ -96,7 +97,7 @@ class WebConfig:
         self.httpServer = None
         self.httpThread = threading.Thread(target=self.httpEntryFunc)
         self.httpThread.start()
-        print("Startup complete!")
+        logging.info("Startup complete!")
 
     async def register(self, websocket):
         self.connectedUsers.add(websocket)
@@ -112,8 +113,8 @@ class WebConfig:
             async for message in websocket:
                 data = json.loads(message)
                 if data["action"] == "set":
-                    print("Message: {}".format(str(data)))
-                    webObjectDict[data["id"]].setValue(data["value"][0])
+                    logging.debug("Message: {}".format(str(data)))
+                    webObjectDict[data["id"]].setValue(data["value"])
                 else:
                     logging.error("unsupported event: {}".format(data))
         finally:
@@ -132,7 +133,7 @@ class WebConfig:
             if self.connectedUsers:  # asyncio.wait doesn't accept an empty list
                 message = self.val_update_event()
                 await asyncio.wait([user.send(message) for user in self.connectedUsers])
-            await asyncio.sleep(0.25)
+            await asyncio.sleep(0.1)
 
 
     def wsEntryFunc(self):
@@ -151,11 +152,11 @@ class WebConfig:
 
     def httpEntryFunc(self):
             self.httpServer = socketserver.TCPServer(("", HTTP_PORT), self.httpHandler)
-            print("serving at port", HTTP_PORT)
+            logging.info("serving at port {}".format(HTTP_PORT))
             self.httpServer.serve_forever()
 
     def shutdown(self):
-        print("Shutting Down...")
+        logging.info("Shutting Down...")
         self.wsThreadRun = False
         asyncio.get_event_loop().stop()
         asyncio.get_event_loop().close()
@@ -163,11 +164,17 @@ class WebConfig:
 
         self.httpServer.shutdown()
         self.httpThread.join()
-        print("done!")
+        logging.info("done!")
 
 
     def addSlider(self, name, minVal, maxVal, defaultVal):
         global webObjectDict
         newSliderObj = Slider(name, minVal, maxVal, defaultVal)
         webObjectDict[newSliderObj.id] = newSliderObj
+        return newSliderObj
 
+    def addDoubleSlider(self, name, minVal, maxVal, defaultVal1, defaultVal2):
+        global webObjectDict
+        newSliderObj = DoubleSlider(name, minVal, maxVal, defaultVal1, defaultVal2)
+        webObjectDict[newSliderObj.id] = newSliderObj
+        return newSliderObj
